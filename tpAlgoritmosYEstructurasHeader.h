@@ -12,6 +12,7 @@
 #define ERROR_MEMORIA 1
 #define ARCHIVO_INEXISTENTE 2
 
+
 typedef struct
 {
     unsigned filas;
@@ -22,7 +23,15 @@ typedef struct
     unsigned maxVidasExtra;
 }config;
 
+typedef struct
+{
+    int x;
+    int y;
+}parInt;
+
 int leerArchivoTexto(const char*, void* elem);
 int generarLaberinto(config *conf);
+int DFSgenerarCamino(config* conf, char** laberinto,unsigned x,unsigned y);
+void mezclarMovimientos(parInt *vec);
 
 #endif // TPALGORITMOSYESTRUCTURASHEADER_H_INCLUDED
