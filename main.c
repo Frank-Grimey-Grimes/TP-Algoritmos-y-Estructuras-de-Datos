@@ -3,9 +3,23 @@
 /// tpAlgoritmosYEstructuras V1
 int main()
 {
+    //pre juego
+    int estadoDelJuego;
     config configuracion;
-    configuracion.filas = 12;
-    configuracion.columnas = 12;
-    generarLaberinto(&configuracion);
+    leerArchivoConfig(NOMARCHCONFIG,&configuracion);
+    //juego
+    estadoDelJuego = 0;
+    while(estadoDelJuego!=SALIR)
+    {
+        estadoDelJuego = menuOpciones();
+        switch(estadoDelJuego)
+        {
+            case JUGAR: partida(&configuracion);
+            case LEADERBOARD: break;
+            default: break;
+        }
+    }
+
+
     return 0;
 }
