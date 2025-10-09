@@ -16,6 +16,7 @@ int main()
         switch(estadoDelJuego)
         {
             case JUGAR: partida(&configuracion);
+                        break;
             case LEADERBOARD: break;
             default: break;
         }

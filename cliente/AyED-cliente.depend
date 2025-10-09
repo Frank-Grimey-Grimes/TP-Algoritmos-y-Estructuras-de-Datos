@@ -23,3 +23,29 @@
 	<string.h>
 	<time.h>
 
+1759696902 source:c:\users\usuario\desktop\unlam\algoritmos y estructuras de datos\tpalgoritmosyestructuras\ayed-main\cliente\main.c
+	<stdio.h>
+	<stdlib.h>
+	"socket.h"
+	"juego.h"
+
+1759616497 c:\users\usuario\desktop\unlam\algoritmos y estructuras de datos\tpalgoritmosyestructuras\ayed-main\cliente\socket.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<winsock2.h>
+
+1759973792 c:\users\usuario\desktop\unlam\algoritmos y estructuras de datos\tpalgoritmosyestructuras\ayed-main\cliente\juego.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+
+1759973569 source:c:\users\usuario\desktop\unlam\algoritmos y estructuras de datos\tpalgoritmosyestructuras\ayed-main\cliente\juego.c
+	"juego.h"
+
+1759958045 c:\users\usuario\desktop\unlam\algoritmos y estructuras de datos\tpalgoritmosyestructuras\ayed-main\cliente\tdalistadoblementeenlazadaheader.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

@@ -29,6 +29,7 @@ int partida(config *configuracion)
     int i,j;
     char** laberinto;
     Jugador player;
+    parInt **fantasmas;
     // y contiene el numero de la columna en la que se encuentra la salida, la usamos para ubicar al jugador en esa columna
     unsigned y;
 
@@ -38,22 +39,75 @@ int partida(config *configuracion)
     //iniciamos al jugador en la partida
     iniciarJugador(&player,y,&laberinto);
     system("cls");
-    //mientras el jugador este vivo y el jugador no haya llegado al final
-    while(player.estado == VIVO)
+
+    //insertamos las vidas extra
+    generarVidasExtra(configuracion,laberinto);
+
+    //insertamos los premios
+    generarPremios(configuracion,laberinto);
+
+    //insertamos los fantasmas
+    if(generarFantasmas(configuracion,laberinto,&fantasmas) == ERROR_MEMORIA)
+        return ERROR_MEMORIA;
+
+    //mientras el jugador tenga vidas y no haya ganado
+    while(player.vidas > 0 && player.estado != VICTORIA)
     {
-        for(i = 0; i < configuracion->filas; i++)
-            {
-                for(j = 0; j <= configuracion->columnas; j++)
+        //mientras el jugador este vivo y el jugador no haya llegado al final
+        while(player.estado == VIVO)
+        {
+            system("cls");
+            for(i = 0; i < configuracion->filas; i++)
                 {
-                    printf("%c",laberinto[i][j]);
+                    for(j = 0; j <= configuracion->columnas; j++)
+                    {
+                        printf("%c",laberinto[i][j]);
+                    }
                 }
+            movimientoJugador(&laberinto,&player);
+            system("cls");
+            for(i = 0; i < configuracion->filas; i++)
+                {
+                    for(j = 0; j <= configuracion->columnas; j++)
+                    {
+                        printf("%c",laberinto[i][j]);
+                    }
+                }
+            if(player.estado != MUERTO)
+            {
+                movimientoFantasmas(&laberinto, &fantasmas, &player, configuracion);
             }
-        movimientoJugador(&laberinto,&player);
-        system("cls");
+            system("cls");
+            for(i = 0; i < configuracion->filas; i++)
+                {
+                    for(j = 0; j <= configuracion->columnas; j++)
+                    {
+                        printf("%c",laberinto[i][j]);
+                    }
+                }
+        }
+        //si el jugador se cruzó con un fantasma
+        if(player.estado == MUERTO)
+        {
+            //le restamos una vida
+            player.vidas--;
+            //lo devolvemos a la entrada
+            player.x = 1;
+            player.y = y;
+            laberinto[player.x][player.y] = 'J';
+            player.estado = VIVO;
+        }
     }
+
     printf("PUNTUACION: %d\n",player.puntuacion);
 
     //liberamos la memoria utilizada por el laberinto
+    for(i = 0; i < configuracion->maxNumFantasmas; i++)
+    {
+        free(fantasmas[i]);
+    }
+    free(fantasmas);
+
     for( i = 0; i < configuracion->filas; i++)
     {
         free(laberinto[i]);
@@ -244,10 +298,85 @@ void mezclarMovimientos(parInt *vec)
     }
 }
 
+int generarVidasExtra(config *conf, char** laberinto)
+{
+    int i,fila,columna;
+    if(laberinto == NULL)
+        return ERROR_MEMORIA;
+    for(i = 0; i < conf->maxVidasExtra; i++)
+    {
+        srand(time(NULL));
+        fila = 1 + (rand()%(conf->filas - 2));
+        columna = 1 + (rand()%(conf->columnas - 2));
+        while(laberinto[fila][columna] != '.' && laberinto[fila][columna] != '#')
+              {
+                  fila = 1 + (rand()%(conf->filas - 2));
+                columna = 1 + (rand()%(conf->columnas - 2));
+              }
+        laberinto[fila][columna] = 'V';
+    }
+    return TODO_OK;
+}
+
+int generarPremios(config *conf, char** laberinto)
+{
+    int i,fila,columna;
+    if(laberinto == NULL)
+        return ERROR_MEMORIA;
+    for(i = 0; i < conf->maxNumPremios; i++)
+    {
+        srand(time(NULL));
+        fila = 1 + (rand()%(conf->filas - 2));
+        columna = 1 + (rand()%(conf->columnas - 2));
+        while(laberinto[fila][columna] != '.' && laberinto[fila][columna] != '#')
+              {
+                  fila = 1 + (rand()%(conf->filas - 2));
+                columna = 1 + (rand()%(conf->columnas - 2));
+              }
+        laberinto[fila][columna] = 'P';
+    }
+    return TODO_OK;
+}
+
+//fantasmas es un vector dinamico de parInts que guarda la posicion de cada fantasma.
+int generarFantasmas(config *conf, char** laberinto,parInt ***fantasmas)
+{
+    int i,j;
+    parInt *ghost;
+    *fantasmas = (parInt**)malloc(sizeof(parInt *) * conf->maxNumFantasmas);
+    if(*fantasmas == NULL)
+        return ERROR_MEMORIA;
+    for(i = 0; i < conf->maxNumFantasmas; i++)
+    {
+        ghost = (parInt *)malloc(sizeof(parInt));
+        if(ghost == NULL)
+        {
+            for(j = 0; j < i - 1; j++)
+            {
+                free((*fantasmas)[i]);
+                free(*fantasmas);
+                return ERROR_MEMORIA;
+            }
+        }
+        ghost->x = 1 + (rand()%(conf->filas - 2));
+        ghost->y = 1 + (rand()%(conf->columnas - 2));
+        while(laberinto[ghost->x][ghost->y] != '.' && laberinto[ghost->x][ghost->y] != '#')
+        {
+            ghost->x = 1 + (rand()%(conf->filas - 2));
+            ghost->y = 1 + (rand()%(conf->columnas - 2));
+        }
+        laberinto[ghost->x][ghost->y] = 'F';
+        (*fantasmas)[i] = ghost;
+    }
+
+    return TODO_OK;
+}
+
 ///Funciones jugador
 void iniciarJugador(Jugador *jug, unsigned y,char*** laberinto)
 {
     jug->puntuacion = 0;
+    jug->vidas = 1;
     jug->estado = VIVO;
     jug->x = 1;
     jug->y = y;
@@ -286,8 +415,23 @@ void movimientoJugador(char*** laberinto,Jugador *jug)
     }
     nuevaPos.x = jug->x + movimiento.x;
     nuevaPos.y = jug->y + movimiento.y;
-    if((*laberinto)[nuevaPos.x][nuevaPos.y] == '.')
+    if((*laberinto)[nuevaPos.x][nuevaPos.y] != '#' && (*laberinto)[nuevaPos.x][nuevaPos.y] != 'S'
+       && (*laberinto)[nuevaPos.x][nuevaPos.y] != 'E')
     {
+        //si la nueva posicion del jugador es la de un fantasma
+        if((*laberinto)[nuevaPos.x][nuevaPos.y] == 'F')
+        {
+            jug->estado = MUERTO;
+            (*laberinto)[jug->x][jug->y] = '.';
+            return;
+        }
+        // si la nueva posicion del jugador es la de un premio
+        if((*laberinto)[nuevaPos.x][nuevaPos.y] == 'P')
+            jug->puntuacion++;
+
+        //si la nueva posicion del jugador es la de una vida extra
+        if((*laberinto)[nuevaPos.x][nuevaPos.y] == 'V')
+            jug->vidas++;
         (*laberinto)[nuevaPos.x][nuevaPos.y] = 'J';
         (*laberinto)[jug->x][jug->y] = '.';
         jug->x = nuevaPos.x;
@@ -299,4 +443,55 @@ void movimientoJugador(char*** laberinto,Jugador *jug)
         jug->estado = VICTORIA;
     }
     return;
+}
+
+///Funciones Fantasmas
+// esta logica de movimiento para los fantasmas elige una direccion al azar de las direcciones en las que no
+// haya una pared, premio o vida extra para que el fantasma se mueva
+// no es muy interesante ni muy divertida
+void movimientoFantasmas(char*** laberinto, parInt ***fantasmas, Jugador *jug, config *conf)
+{
+    int i,j,nx,ny,cantValidos;
+    parInt movimientos[4] = {
+        { -1, 0 },  // arriba
+        { 1, 0 },   // abajo
+        { 0, -1 },  // izquierda
+        { 0, 1 }    // derecha
+    };
+    parInt movValidos[4];
+
+    for(i = 0; i < conf->maxNumFantasmas; i++)
+    {
+        cantValidos = 0;
+        for(j = 0; j < 4; j++)
+        {
+            nx = (*fantasmas)[i]->x + movimientos[j].x;
+            ny = (*fantasmas)[i]->y + movimientos[j].y;
+
+            if((*laberinto)[nx][ny] == '.' || (*laberinto)[nx][ny] == 'J')
+            {
+                movValidos[cantValidos] = movimientos[j];
+                cantValidos++;
+            }
+        }
+
+        if(cantValidos > 0)
+        {
+            srand(time(NULL));
+            j = rand() % cantValidos;
+            //si el proximo movimiento corresponde a la posicion del jugador
+            if((*laberinto)[(*fantasmas)[i]->x + movValidos[j].x][(*fantasmas)[i]->y + movValidos[j].y] == 'J')
+            {
+                //cambiar el estado del jugador a "MUERTO"
+                jug->estado = MUERTO;
+            }
+            //borramos vieja posicion
+           (*laberinto)[(*fantasmas)[i]->x][(*fantasmas)[i]->y] = '.';
+            //actualizamos posicion
+            (*fantasmas)[i]->x += movValidos[j].x;
+            (*fantasmas)[i]->y += movValidos[j].y;
+            //dibujamos nueva posicion
+            (*laberinto)[(*fantasmas)[i]->x][(*fantasmas)[i]->y] = 'F';
+        }
+    }
 }

@@ -52,7 +52,11 @@ typedef struct
     int y;
     int estado;
     int puntuacion;
+    int vidas;
 }Jugador;
+
+///Lista
+//para el manejo de los fantasmas
 
 //menu
 int menuOpciones();
@@ -67,10 +71,15 @@ int partida(config *configuracion);
 int generarLaberinto(config *conf, unsigned *y, char*** laberinto);
 int DFSgenerarCamino(config* conf, char** laberinto,unsigned x,unsigned y);
 void mezclarMovimientos(parInt *vec);
-
+int generarVidasExtra(config *conf, char** laberinto);
+int generarPremios(config *conf, char** laberinto);
+int generarFantasmas(config *conf, char** laberinto,parInt ***fantasmas);
 //jugador
 void iniciarJugador(Jugador *jug, unsigned y,char*** laberinto);
 void movimientoJugador(char*** laberinto, Jugador *jug);
+
+//fantasmas
+void movimientoFantasmas(char*** laberinto, parInt ***fantasmas, Jugador *jug, config *conf);
 
 ///Leaderboard
 

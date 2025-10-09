@@ -1,2 +1,2 @@
 filas,columnas,vidas_inicio,maximo_numero_fantasmas,maximo_numero_premios,maximo_vidas_extra
-8,8,3,3,3,1
+10,10,3,3,3,3
