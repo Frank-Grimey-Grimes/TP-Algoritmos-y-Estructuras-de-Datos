@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1759027435 source:c:\users\flavio\desktop\cliente\ayed-cliente\main.c
+	<stdio.h>
+	<stdlib.h>
+	"socket.h"
+	"juego.h"
+
+1759026161 c:\users\flavio\desktop\cliente\ayed-cliente\socket.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<winsock2.h>
+
+1759026161 source:c:\users\flavio\desktop\cliente\ayed-cliente\socket.c
+	"socket.h"
+
+1759027393 source:c:\users\flavio\desktop\cliente\ayed-cliente\juego.c
+	"juego.h"
+
+1759027393 c:\users\flavio\desktop\cliente\ayed-cliente\juego.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+
